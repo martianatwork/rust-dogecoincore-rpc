@@ -334,12 +334,12 @@ pub trait RpcApi: Sized {
     }
 
     fn get_block(&self, hash: &bitcoin::BlockHash) -> Result<Block> {
-        let hex: String = self.call("getblock", &[into_json(hash)?, 0.into()])?;
+        let hex: String = self.call("getblock", &[into_json(hash)?, false.into()])?;
         deserialize_hex(&hex)
     }
 
     fn get_block_hex(&self, hash: &bitcoin::BlockHash) -> Result<String> {
-        self.call("getblock", &[into_json(hash)?, 0.into()])
+        self.call("getblock", &[into_json(hash)?, false.into()])
     }
 
     fn get_block_info(&self, hash: &bitcoin::BlockHash) -> Result<json::GetBlockResult> {
@@ -489,9 +489,10 @@ pub trait RpcApi: Sized {
     fn get_raw_transaction(
         &self,
         txid: &bitcoin::Txid,
-        block_hash: Option<&bitcoin::BlockHash>,
+        // block_hash: Option<&bitcoin::BlockHash>,
     ) -> Result<Transaction> {
-        let mut args = [into_json(txid)?, into_json(false)?, opt_into_json(block_hash)?];
+        // let mut args = [into_json(txid)?, into_json(false)?, opt_into_json(block_hash)?];
+        let mut args = [into_json(txid)?, into_json(false)?];
         let hex: String = self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))?;
         deserialize_hex(&hex)
     }
@@ -499,18 +500,16 @@ pub trait RpcApi: Sized {
     fn get_raw_transaction_hex(
         &self,
         txid: &bitcoin::Txid,
-        block_hash: Option<&bitcoin::BlockHash>,
     ) -> Result<String> {
-        let mut args = [into_json(txid)?, into_json(false)?, opt_into_json(block_hash)?];
+        let mut args = [into_json(txid)?, into_json(false)?];
         self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))
     }
 
     fn get_raw_transaction_info(
         &self,
         txid: &bitcoin::Txid,
-        block_hash: Option<&bitcoin::BlockHash>,
     ) -> Result<json::GetRawTransactionResult> {
-        let mut args = [into_json(txid)?, into_json(true)?, opt_into_json(block_hash)?];
+        let mut args = [into_json(txid)?, into_json(true)?];
         self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))
     }
 
@@ -528,7 +527,7 @@ pub trait RpcApi: Sized {
     ) -> Result<Amount> {
         let mut args = ["*".into(), opt_into_json(minconf)?, opt_into_json(include_watchonly)?];
         Ok(Amount::from_btc(
-            self.call("getbalance", handle_defaults(&mut args, &[0.into(), null()]))?,
+            self.call("getbalance", handle_defaults(&mut args, &[false.into(), null()]))?,
         )?)
     }
 
@@ -565,7 +564,7 @@ pub trait RpcApi: Sized {
             opt_into_json(skip)?,
             opt_into_json(include_watchonly)?,
         ];
-        self.call("listtransactions", handle_defaults(&mut args, &[10.into(), 0.into(), null()]))
+        self.call("listtransactions", handle_defaults(&mut args, &[1false.into(), false.into(), null()]))
     }
 
     fn list_since_block(
@@ -1143,7 +1142,7 @@ pub trait RpcApi: Sized {
         ];
         self.call(
             "walletcreatefundedpsbt",
-            handle_defaults(&mut args, &[0.into(), serde_json::Map::new().into(), false.into()]),
+            handle_defaults(&mut args, &[false.into(), serde_json::Map::new().into(), false.into()]),
         )
     }
 
@@ -1207,7 +1206,7 @@ pub trait RpcApi: Sized {
             pub stop_height: Option<usize>,
         }
         let res: Response =
-            self.call("rescanblockchain", handle_defaults(&mut args, &[0.into(), null()]))?;
+            self.call("rescanblockchain", handle_defaults(&mut args, &[false.into(), null()]))?;
         Ok((res.start_height, res.stop_height))
     }
 
