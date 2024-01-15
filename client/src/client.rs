@@ -564,7 +564,7 @@ pub trait RpcApi: Sized {
             opt_into_json(skip)?,
             opt_into_json(include_watchonly)?,
         ];
-        self.call("listtransactions", handle_defaults(&mut args, &[1false.into(), false.into(), null()]))
+        self.call("listtransactions", handle_defaults(&mut args, &[10.into(), false.into(), null()]))
     }
 
     fn list_since_block(
